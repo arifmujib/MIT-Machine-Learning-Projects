@@ -147,7 +147,8 @@ def perceptron(feature_matrix, labels, T):
     """
     # Your code here
     theta = np.zeros(feature_matrix.shape[1])
-    theta_0 = np.zeros(1)
+    #theta_0 = np.zeros(1)
+    theta_0 = np.array(0.)
     for t in range(T):
         for i in get_order(feature_matrix.shape[0]):
             # Your code here
@@ -193,9 +194,11 @@ def average_perceptron(feature_matrix, labels, T):
     """
     # Your code here
     theta = np.zeros(feature_matrix.shape[1])
-    theta_0 = np.zeros(1)
+    #theta_0 = np.zeros(1)
+    theta_0 = np.array(0.)
     theta_sum= np.zeros(feature_matrix.shape[1])
-    theta_sum_0 = np.zeros(1)
+    #theta_sum_0 = np.zeros(1)
+    theta_sum_0 = np.array(0.)
     count=0
     for t in range(T):
         for i in get_order(feature_matrix.shape[0]):
@@ -247,9 +250,6 @@ def pegasos_single_step_update(
         current_theta_0 = current_theta_0
         current_theta = (1 - eta * L) * current_theta
     #else:
-
-
-
     return current_theta, current_theta_0
     raise NotImplementedError
 
@@ -288,7 +288,8 @@ def pegasos(feature_matrix, labels, T, L):
     parameter, found after T iterations through the feature matrix.
     """
     # Your code here
-    theta, theta_0,u = np.zeros(feature_matrix.shape[1]), np.zeros(1), 1
+    #theta, theta_0,u = np.zeros(feature_matrix.shape[1]), np.zeros(1), 1
+    theta, theta_0, u = np.zeros(feature_matrix.shape[1]), np.array(0.), 1
     for t in range(T):
         #eta = 1/np.sqrt(t+1)
         for i in get_order(feature_matrix.shape[0]):
@@ -324,6 +325,19 @@ def classify(feature_matrix, theta, theta_0):
     be considered a positive classification.
     """
     # Your code here
+    result = np.dot(feature_matrix,theta)+ np.array(theta_0)
+
+    output= np.zeros(result.shape[0])
+
+    for i in range(result.shape[0]):
+        if result[i]>0:
+            output[i]= +1
+        else:
+            output[i]= -1
+
+    return output
+
+
     raise NotImplementedError
 
 
@@ -364,6 +378,10 @@ def classifier_accuracy(
     accuracy of the trained classifier on the validation data.
     """
     # Your code here
+    theta, theta_0 = classifier(train_feature_matrix, train_labels, **kwargs)
+    train_predictted_labels = classify(train_feature_matrix, theta, theta_0)
+    val_predictted_labels = classify(val_feature_matrix, theta, theta_0)
+    return accuracy(train_predictted_labels, train_labels), accuracy(val_predictted_labels, val_labels)
     raise NotImplementedError
 
 
@@ -388,7 +406,7 @@ def extract_words(input_string):
 
 
 # pragma: coderesponse template
-def bag_of_words(texts):
+def bag_of_words(texts, stopwords):
     """
     Inputs a list of string reviews
     Returns a dictionary of unique unigrams occurring over the input
@@ -401,7 +419,8 @@ def bag_of_words(texts):
         word_list = extract_words(text)
         for word in word_list:
             if word not in dictionary:
-                dictionary[word] = len(dictionary)
+                if word not in stopwords:# & word not in stopword:
+                    dictionary[word] = len(dictionary)
     return dictionary
 
 
@@ -428,7 +447,7 @@ def extract_bow_feature_vectors(reviews, dictionary):
         word_list = extract_words(text)
         for word in word_list:
             if word in dictionary:
-                feature_matrix[i, dictionary[word]] = 1
+                feature_matrix[i, dictionary[word]] += 1
     return feature_matrix
 
 
@@ -443,3 +462,11 @@ def accuracy(preds, targets):
     """
     return (preds == targets).mean()
 # pragma: coderesponse end
+
+## feature engineering with stopwords
+def improve_word_dict(dictionary, stopword):
+    for word in stopword:
+        if word in dictionary.keys():
+            del dictionary[word]
+
+    return dictionary
