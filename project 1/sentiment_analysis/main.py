@@ -9,6 +9,8 @@ import numpy as np
 train_data = utils.load_data('reviews_train.tsv')
 val_data = utils.load_data('reviews_val.tsv')
 test_data = utils.load_data('reviews_test.tsv')
+
+
 stopword_file = open('stopwords.txt', 'r')
 stopwords = [word[:-1] for word in stopword_file]
 
